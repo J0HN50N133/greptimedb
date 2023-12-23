@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["MetadataError"],"struct":["ColumnMetadata","ConvertDatatypesSnafu","InvalidMetaSnafu","InvalidRawRegionRequestSnafu","InvalidRegionRequestSnafu","InvalidSchemaSnafu","RegionMetadata","RegionMetadataBuilder","SerdeJsonSnafu","SkippedFields"],"type":["RegionMetadataRef","Result"]};
