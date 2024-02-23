@@ -320,9 +320,6 @@
 <span class="kw">use </span><span class="kw">crate</span>::data_region::DataRegion;
 <span class="kw">use </span><span class="kw">crate</span>::metadata_region::MetadataRegion;
 
-<span class="doccomment">/// Fixed random state for generating tsid
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>RANDOM_STATE: ahash::RandomState = ahash::RandomState::with_seeds(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>);
-
 <span class="attr">#[cfg_attr(doc, aquamarine::aquamarine)]
 </span><span class="doccomment">/// # Metric Engine
 ///
@@ -432,7 +429,10 @@
 
     <span class="doccomment">/// Retrieves region's metadata.
     </span><span class="kw">async fn </span>get_metadata(<span class="kw-2">&amp;</span><span class="self">self</span>, region_id: RegionId) -&gt; <span class="prelude-ty">Result</span>&lt;RegionMetadataRef, BoxedError&gt; {
-        <span class="macro">todo!</span>()
+        <span class="self">self</span>.inner
+            .load_region_metadata(region_id)
+            .<span class="kw">await
+            </span>.map_err(BoxedError::new)
     }
 
     <span class="doccomment">/// Retrieves region's disk usage.
@@ -541,7 +541,7 @@
             .<span class="kw">await
             </span>.unwrap_err();
 
-        <span class="comment">// open nonexistent region
+        <span class="comment">// open nonexistent region won't report error
         </span><span class="kw">let </span>invalid_open_request = RegionOpenRequest {
             engine: METRIC_ENGINE_NAME.to_string(),
             region_dir: env.default_region_dir(),
@@ -554,7 +554,7 @@
                 RegionRequest::Open(invalid_open_request),
             )
             .<span class="kw">await
-            </span>.unwrap_err();
+            </span>.unwrap();
     }
 }
 </code></pre></div></section></main></body></html>

@@ -739,6 +739,17 @@
 <a href="#738" id="738">738</a>
 <a href="#739" id="739">739</a>
 <a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright 2023 Greptime Team
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -759,7 +770,8 @@
 <span class="kw">use </span>async_trait::async_trait;
 <span class="kw">use </span>clap::Parser;
 <span class="kw">use </span>common_catalog::consts::MIN_USER_TABLE_ID;
-<span class="kw">use </span>common_config::{metadata_store_dir, KvBackendConfig, WalConfig};
+<span class="kw">use </span>common_config::wal::StandaloneWalConfig;
+<span class="kw">use </span>common_config::{metadata_store_dir, KvBackendConfig};
 <span class="kw">use </span>common_meta::cache_invalidator::DummyCacheInvalidator;
 <span class="kw">use </span>common_meta::datanode_manager::DatanodeManagerRef;
 <span class="kw">use </span>common_meta::ddl::{DdlTaskExecutorRef, TableMetadataAllocatorRef};
@@ -772,6 +784,7 @@
 <span class="kw">use </span>common_procedure::ProcedureManagerRef;
 <span class="kw">use </span>common_telemetry::info;
 <span class="kw">use </span>common_telemetry::logging::LoggingOptions;
+<span class="kw">use </span>common_time::timezone::set_default_timezone;
 <span class="kw">use </span>datanode::config::{DatanodeOptions, ProcedureConfig, RegionEngineConfig, StorageConfig};
 <span class="kw">use </span>datanode::datanode::{Datanode, DatanodeBuilder};
 <span class="kw">use </span>file_engine::config::EngineConfig <span class="kw">as </span>FileEngineConfig;
@@ -791,8 +804,8 @@
 <span class="kw">use </span>snafu::ResultExt;
 
 <span class="kw">use </span><span class="kw">crate</span>::error::{
-    CreateDirSnafu, IllegalConfigSnafu, InitDdlManagerSnafu, InitMetadataSnafu, <span class="prelude-ty">Result</span>,
-    ShutdownDatanodeSnafu, ShutdownFrontendSnafu, StartDatanodeSnafu, StartFrontendSnafu,
+    CreateDirSnafu, IllegalConfigSnafu, InitDdlManagerSnafu, InitMetadataSnafu, InitTimezoneSnafu,
+    <span class="prelude-ty">Result</span>, ShutdownDatanodeSnafu, ShutdownFrontendSnafu, StartDatanodeSnafu, StartFrontendSnafu,
     StartProcedureManagerSnafu, StartWalOptionsAllocatorSnafu, StopProcedureManagerSnafu,
 };
 <span class="kw">use </span><span class="kw">crate</span>::options::{CliOptions, MixOptions, Options};
@@ -838,6 +851,7 @@
 </span><span class="kw">pub struct </span>StandaloneOptions {
     <span class="kw">pub </span>mode: Mode,
     <span class="kw">pub </span>enable_telemetry: bool,
+    <span class="kw">pub </span>default_timezone: <span class="prelude-ty">Option</span>&lt;String&gt;,
     <span class="kw">pub </span>http: HttpOptions,
     <span class="kw">pub </span>grpc: GrpcOptions,
     <span class="kw">pub </span>mysql: MysqlOptions,
@@ -845,7 +859,7 @@
     <span class="kw">pub </span>opentsdb: OpentsdbOptions,
     <span class="kw">pub </span>influxdb: InfluxdbOptions,
     <span class="kw">pub </span>prom_store: PromStoreOptions,
-    <span class="kw">pub </span>wal: WalConfig,
+    <span class="kw">pub </span>wal: StandaloneWalConfig,
     <span class="kw">pub </span>storage: StorageConfig,
     <span class="kw">pub </span>metadata_store: KvBackendConfig,
     <span class="kw">pub </span>procedure: ProcedureConfig,
@@ -861,6 +875,7 @@
         <span class="self">Self </span>{
             mode: Mode::Standalone,
             enable_telemetry: <span class="bool-val">true</span>,
+            default_timezone: <span class="prelude-val">None</span>,
             http: HttpOptions::default(),
             grpc: GrpcOptions::default(),
             mysql: MysqlOptions::default(),
@@ -868,7 +883,7 @@
             opentsdb: OpentsdbOptions::default(),
             influxdb: InfluxdbOptions::default(),
             prom_store: PromStoreOptions::default(),
-            wal: WalConfig::default(),
+            wal: StandaloneWalConfig::default(),
             storage: StorageConfig::default(),
             metadata_store: KvBackendConfig::default(),
             procedure: ProcedureConfig::default(),
@@ -887,6 +902,7 @@
     <span class="kw">fn </span>frontend_options(<span class="self">self</span>) -&gt; FrontendOptions {
         FrontendOptions {
             mode: <span class="self">self</span>.mode,
+            default_timezone: <span class="self">self</span>.default_timezone,
             http: <span class="self">self</span>.http,
             grpc: <span class="self">self</span>.grpc,
             mysql: <span class="self">self</span>.mysql,
@@ -907,7 +923,7 @@
         DatanodeOptions {
             node_id: <span class="prelude-val">Some</span>(<span class="number">0</span>),
             enable_telemetry: <span class="self">self</span>.enable_telemetry,
-            wal: <span class="self">self</span>.wal,
+            wal: <span class="self">self</span>.wal.into(),
             storage: <span class="self">self</span>.storage,
             region_engine: <span class="self">self</span>.region_engine,
             rpc_addr: <span class="self">self</span>.grpc.addr,
@@ -1079,7 +1095,8 @@
         <span class="kw">let </span>procedure = opts.procedure.clone();
         <span class="kw">let </span>frontend = opts.clone().frontend_options();
         <span class="kw">let </span>logging = opts.logging.clone();
-        <span class="kw">let </span>datanode = opts.datanode_options();
+        <span class="kw">let </span>wal_meta = opts.wal.clone().into();
+        <span class="kw">let </span>datanode = opts.datanode_options().clone();
 
         <span class="prelude-val">Ok</span>(Options::Standalone(Box::new(MixOptions {
             procedure,
@@ -1088,6 +1105,7 @@
             frontend,
             datanode,
             logging,
+            wal_meta,
         })))
     }
 
@@ -1106,6 +1124,9 @@
         <span class="macro">info!</span>(<span class="string">"Standalone start command: {:#?}"</span>, <span class="self">self</span>);
 
         <span class="macro">info!</span>(<span class="string">"Building standalone instance with {opts:#?}"</span>);
+
+        set_default_timezone(opts.frontend.default_timezone.as_deref())
+            .context(InitTimezoneSnafu)<span class="question-mark">?</span>;
 
         <span class="comment">// Ensure the data_home directory exists.
         </span>fs::create_dir_all(path::Path::new(<span class="kw-2">&amp;</span>opts.data_home)).context(CreateDirSnafu {
@@ -1133,9 +1154,8 @@
                 .step(<span class="number">10</span>)
                 .build(),
         );
-        <span class="comment">// TODO(niebayes): add a wal config into the MixOptions and pass it to the allocator builder.
-        </span><span class="kw">let </span>wal_options_allocator = Arc::new(WalOptionsAllocator::new(
-            common_meta::wal::WalConfig::default(),
+        <span class="kw">let </span>wal_options_allocator = Arc::new(WalOptionsAllocator::new(
+            opts.wal_meta.clone(),
             kv_backend.clone(),
         ));
         <span class="kw">let </span>table_meta_allocator = Arc::new(StandaloneTableMetadataAllocator::new(
@@ -1220,6 +1240,7 @@
 
     <span class="kw">use </span>auth::{Identity, Password, UserProviderRef};
     <span class="kw">use </span>common_base::readable_size::ReadableSize;
+    <span class="kw">use </span>common_config::WalConfig;
     <span class="kw">use </span>common_test_util::temp_dir::create_named_temp_file;
     <span class="kw">use </span>datanode::config::{FileConfig, GcsConfig};
     <span class="kw">use </span>servers::Mode;
@@ -1270,6 +1291,7 @@
             purge_interval = "10m"
             read_batch_size = 128
             sync_write = false
+
             [storage]
             data_home = "/tmp/greptimedb/"
             type = "File"
