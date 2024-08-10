@@ -32,10 +32,6 @@ pub mod kvbackend;
 pub mod memory;
 mod metrics;
 pub mod system_schema;
-pub mod information_schema {
-    // TODO(j0hn50n133): re-export to make it compatible with the legacy code, migrate to the new path later
-    pub use crate::system_schema::information_schema::*;
-}
 
 pub mod table_source;
 #[async_trait::async_trait]

@@ -36,8 +36,7 @@ use store_api::storage::{ScanRequest, TableId};
 use crate::error::{
     CreateRecordBatchSnafu, FlowInfoNotFoundSnafu, InternalSnafu, JsonSnafu, ListFlowsSnafu, Result,
 };
-use crate::information_schema::{Predicates, FLOWS};
-use crate::system_schema::information_schema::InformationTable;
+use crate::system_schema::information_schema::{InformationTable, Predicates, FLOWS};
 
 const INIT_CAPACITY: usize = 42;
 

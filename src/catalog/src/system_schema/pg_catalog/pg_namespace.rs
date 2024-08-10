@@ -35,7 +35,7 @@ use super::{PGNamespaceOidMapRef, OID_COLUMN_NAME, PG_NAMESPACE};
 use crate::error::{
     CreateRecordBatchSnafu, InternalSnafu, Result, UpgradeWeakCatalogManagerRefSnafu,
 };
-use crate::information_schema::Predicates;
+use crate::system_schema::information_schema::Predicates;
 use crate::system_schema::utils::tables::{string_column, u32_column};
 use crate::system_schema::SystemTable;
 use crate::CatalogManager;

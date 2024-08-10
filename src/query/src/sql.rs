@@ -17,7 +17,7 @@ mod show_create_table;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use catalog::information_schema::{
+use catalog::system_schema::information_schema::{
     columns, flows, key_column_usage, schemata, tables, CHARACTER_SETS, COLLATIONS, COLUMNS, FLOWS,
     KEY_COLUMN_USAGE, SCHEMATA, TABLES, VIEWS,
 };

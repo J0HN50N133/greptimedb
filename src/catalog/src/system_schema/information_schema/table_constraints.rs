@@ -36,10 +36,10 @@ use super::{InformationTable, TABLE_CONSTRAINTS};
 use crate::error::{
     CreateRecordBatchSnafu, InternalSnafu, Result, UpgradeWeakCatalogManagerRefSnafu,
 };
-use crate::information_schema::key_column_usage::{
+use crate::system_schema::information_schema::key_column_usage::{
     PRI_CONSTRAINT_NAME, TIME_INDEX_CONSTRAINT_NAME,
 };
-use crate::information_schema::Predicates;
+use crate::system_schema::information_schema::Predicates;
 use crate::CatalogManager;
 
 /// The `TABLE_CONSTRAINTS` table describes which tables have constraints.

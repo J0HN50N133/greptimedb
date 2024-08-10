@@ -46,8 +46,8 @@ use crate::error::{
     CacheNotFoundSnafu, GetTableCacheSnafu, InvalidTableInfoInCatalogSnafu, ListCatalogsSnafu,
     ListSchemasSnafu, ListTablesSnafu, Result, TableMetadataManagerSnafu,
 };
-use crate::information_schema::InformationSchemaProvider;
 use crate::kvbackend::TableCacheRef;
+use crate::system_schema::information_schema::InformationSchemaProvider;
 use crate::system_schema::pg_catalog::PGCatalogProvider;
 use crate::system_schema::SystemSchemaProvider;
 use crate::CatalogManager;

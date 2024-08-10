@@ -42,7 +42,7 @@ use super::{InformationTable, COLUMNS};
 use crate::error::{
     CreateRecordBatchSnafu, InternalSnafu, Result, UpgradeWeakCatalogManagerRefSnafu,
 };
-use crate::information_schema::Predicates;
+use crate::system_schema::information_schema::Predicates;
 use crate::CatalogManager;
 
 pub(super) struct InformationSchemaColumns {
