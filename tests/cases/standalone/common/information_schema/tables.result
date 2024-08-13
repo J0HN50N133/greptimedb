@@ -32,6 +32,7 @@ select table_catalog, table_schema, table_name from information_schema.tables wh
 | greptime      | pg_catalog   | pg_class     |
 | greptime      | pg_catalog   | pg_type      |
 | greptime      | pg_catalog   | pg_namespace |
+| greptime      | pg_catalog   | pg_database  |
 | greptime      | public       | numbers      |
 +---------------+--------------+--------------+
 

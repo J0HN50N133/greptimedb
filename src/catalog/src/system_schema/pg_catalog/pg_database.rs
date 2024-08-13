@@ -38,7 +38,7 @@ use crate::CatalogManager;
 
 // === column name ===
 pub const DATNAME: &str = "datname";
-pub const DATCOLLATE: &str = "relnamespace";
+pub const DATCOLLATE: &str = "datcollate";
 pub const DATCTYPE: &str = "datctype"; // LC_CTYPE of database, we don't actually support this
 pub const DATACL: &str = "datacl";
 pub const DATDBA: &str = "datdba";
@@ -54,27 +54,18 @@ const UTF8_COLLATE_NAME: &str = "utf8_bin";
 mod encoding {
     // pg_enc value
     // reference: https://github.com/postgres/postgres/blob/364de74cff281e7363c7ca8de4fbf04c6e16f8ed/src/include/mb/pg_wchar.h#L248
-    pub const PG_UTF8: u32 = 6; // TODO: map this to "UTF8"
-                                // pg_catalog.pg_encoding_to_char refers to: https://github.com/postgres/postgres/blob/364de74cff281e7363c7ca8de4fbf04c6e16f8ed/src/common/encnames.c#L588
+    pub const PG_UTF8: u32 = 6;
 }
 
 mod datacl {
     use std::sync::LazyLock;
 
-    use datatypes::value::{ListValue, Value};
+    use datatypes::value::ListValue;
     use store_api::storage::ConcreteDataType;
 
-    type ACLItem = &'static str;
     // refer to: https://www.postgresql.org/docs/current/ddl-priv.html
-    // also: system_schema/information_schema/columns.rs:87 to align the default value
-    pub const ACL_SELECT: ACLItem = "r";
-    pub const ACL_INSERT: ACLItem = "a";
-    pub static DEFAULT_PRIVILEGES: LazyLock<ListValue> = LazyLock::new(|| {
-        ListValue::new(
-            vec![Value::from(ACL_SELECT), Value::from(ACL_INSERT)],
-            ConcreteDataType::string_datatype(),
-        )
-    });
+    pub static DEFAULT_PRIVILEGES: LazyLock<ListValue> =
+        LazyLock::new(|| ListValue::new(vec![], ConcreteDataType::string_datatype()));
 }
 
 /// The `pg_catalog.pg_database` table implementation.

@@ -45,7 +45,7 @@ use datatypes::schema::{ColumnDefaultConstraint, ColumnSchema, COMMENT_KEY};
 use datatypes::types::{cast, TimestampType};
 use datatypes::value::{OrderedF32, OrderedF64, Value};
 use snafu::{ensure, OptionExt, ResultExt};
-use sqlparser::ast::{ExactNumberInfo, UnaryOperator};
+use sqlparser::ast::{ArrayElemTypeDef, ExactNumberInfo, UnaryOperator};
 
 use crate::ast::{
     ColumnDef, ColumnOption, ColumnOptionDef, DataType as SqlDataType, Expr, TimezoneInfo,
@@ -607,6 +607,11 @@ pub fn concrete_data_type_to_sql_data_type(data_type: &ConcreteDataType) -> Resu
         ConcreteDataType::Decimal128(d) => Ok(SqlDataType::Decimal(
             ExactNumberInfo::PrecisionAndScale(d.precision() as u64, d.scale() as u64),
         )),
+        ConcreteDataType::List(l) if *l.item_type() == ConcreteDataType::string_datatype() => {
+            Ok(SqlDataType::Array(ArrayElemTypeDef::SquareBracket(
+                Box::new(SqlDataType::Varchar(None)),
+            )))
+        }
         ConcreteDataType::Duration(_)
         | ConcreteDataType::Null(_)
         | ConcreteDataType::List(_)

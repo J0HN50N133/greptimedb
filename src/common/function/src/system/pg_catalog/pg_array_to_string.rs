@@ -27,11 +27,11 @@ use crate::scalars::expression::{scalar_binary_op, EvalContext};
 #[derive(Clone, Debug, Default)]
 pub struct PGArrayToStringFunction;
 
-const NAME: &str = crate::pg_catalog_func_fullname!("pg_array_to_string");
+const NAME: &str = crate::pg_catalog_func_fullname!("array_to_string");
 
 impl fmt::Display for PGArrayToStringFunction {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, crate::pg_catalog_func_fullname!("PG_ARRAY_TO_STRING"))
+        write!(f, crate::pg_catalog_func_fullname!("ARRAY_TO_STRING"))
     }
 }
 
