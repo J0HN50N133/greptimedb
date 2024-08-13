@@ -174,13 +174,12 @@ impl PGNamespaceBuilder {
 
     /// Construct the `pg_catalog.pg_namespace` virtual table
     async fn make_namespace(&mut self, request: Option<ScanRequest>) -> Result<RecordBatch> {
-        let catalog_name = self.catalog_name.clone();
         let catalog_manager = self
             .catalog_manager
             .upgrade()
             .context(UpgradeWeakCatalogManagerRefSnafu)?;
         let predicates = Predicates::from_scan_request(&request);
-        for schema_name in catalog_manager.schema_names(&catalog_name).await? {
+        for schema_name in catalog_manager.schema_names(&self.catalog_name).await? {
             self.add_namespace(&predicates, &schema_name);
         }
         self.finish()

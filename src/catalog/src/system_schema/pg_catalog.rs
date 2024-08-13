@@ -14,6 +14,7 @@
 
 mod pg_catalog_memory_table;
 mod pg_class;
+mod pg_database;
 mod pg_namespace;
 mod table_names;
 
@@ -30,6 +31,7 @@ use pg_namespace::PGNamespace;
 use table::TableRef;
 pub use table_names::*;
 
+use self::pg_database::PGDatabase;
 use self::pg_namespace::oid_map::{PGNamespaceOidMap, PGNamespaceOidMapRef};
 use super::memory_table::MemoryTable;
 use super::utils::tables::u32_column;
@@ -109,6 +111,10 @@ impl PGCatalogProvider {
             self.build_table(PG_NAMESPACE).expect(PG_NAMESPACE),
         );
         tables.insert(
+            PG_DATABASE.to_string(),
+            self.build_table(PG_DATABASE).expect(PG_DATABASE),
+        );
+        tables.insert(
             PG_CLASS.to_string(),
             self.build_table(PG_CLASS).expect(PG_NAMESPACE),
         );
@@ -124,6 +130,10 @@ impl SystemSchemaProviderInner for PGCatalogProvider {
     fn system_table(&self, name: &str) -> Option<SystemTableRef> {
         match name {
             table_names::PG_TYPE => setup_memory_table!(PG_TYPE),
+            table_names::PG_DATABASE => Some(Arc::new(PGDatabase::new(
+                self.catalog_name.clone(),
+                self.catalog_manager.clone(),
+            ))),
             table_names::PG_NAMESPACE => Some(Arc::new(PGNamespace::new(
                 self.catalog_name.clone(),
                 self.catalog_manager.clone(),

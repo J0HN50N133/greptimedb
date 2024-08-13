@@ -26,6 +26,7 @@ use datafusion_common::ScalarValue;
 use datatypes::prelude::{ConcreteDataType, Value};
 use datatypes::schema::Schema;
 use datatypes::types::TimestampType;
+use itertools::Itertools;
 use pgwire::api::portal::{Format, Portal};
 use pgwire::api::results::{DataRowEncoder, FieldInfo};
 use pgwire::api::Type;
@@ -125,6 +126,14 @@ pub(super) fn encode_value(
         }
         Value::Interval(v) => builder.encode_field(&PgInterval::from(*v)),
         Value::Decimal128(v) => builder.encode_field(&v.to_string()),
+        Value::List(l) if *l.datatype() == ConcreteDataType::string_datatype() => {
+            let l = l
+                .items()
+                .iter()
+                .map(|v| v.as_string().unwrap())
+                .collect_vec();
+            builder.encode_field(&l)
+        }
         Value::List(_) | Value::Duration(_) => {
             Err(PgWireError::ApiError(Box::new(Error::Internal {
                 err_msg: format!(
@@ -154,6 +163,10 @@ pub(super) fn type_gt_to_pg(origin: &ConcreteDataType) -> Result<Type> {
         &ConcreteDataType::Time(_) => Ok(Type::TIME),
         &ConcreteDataType::Interval(_) => Ok(Type::INTERVAL),
         &ConcreteDataType::Decimal128(_) => Ok(Type::NUMERIC),
+        ConcreteDataType::List(v) if v.item_type() == &ConcreteDataType::string_datatype() => {
+            // TODO Ok(Type::VARCHAR_ARRAY)
+            Ok(Type::VARCHAR_ARRAY)
+        }
         &ConcreteDataType::Duration(_)
         | &ConcreteDataType::List(_)
         | &ConcreteDataType::Dictionary(_) => server_error::UnsupportedDataTypeSnafu {

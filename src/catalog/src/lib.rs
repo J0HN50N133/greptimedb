@@ -14,6 +14,7 @@
 
 #![feature(assert_matches)]
 #![feature(try_blocks)]
+#![feature(lazy_cell)]
 
 use std::any::Any;
 use std::fmt::{Debug, Formatter};

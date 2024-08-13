@@ -77,22 +77,22 @@ mod pg_type {
         const LEN_UNBOUND: i16 = -1;
 
         // refer to https://www.postgresql.org/docs/current/catalog-pg-type.html
-        const _A: &'static str = "A"; // Array types
-        const B: &'static str = "B"; // Boolean types
-        const _C: &'static str = "C"; // Composite types
-        const D: &'static str = "D"; // Date/time types
-        const _E: &'static str = "E"; // Enum types
-        const _G: &'static str = "G"; // Geometric types
-        const _I: &'static str = "I"; // Network address types
-        const N: &'static str = "N"; // Numeric types
-        const P: &'static str = "P"; // Pseudo-types
-        const _R: &'static str = "R"; // Range types
-        const S: &'static str = "S"; // String types
-        const T: &'static str = "T"; // Timespan types
-        const U: &'static str = "U"; // User-defined types
-        const _V: &'static str = "V"; // Bit-string types
-        const _X: &'static str = "X"; // Unknown type(no category)
-        const _Z: &'static str = "Z"; // Internal-use types
+        const _A: &str = "A"; // Array types
+        const B: &str = "B"; // Boolean types
+        const _C: &str = "C"; // Composite types
+        const D: &str = "D"; // Date/time types
+        const _E: &str = "E"; // Enum types
+        const _G: &str = "G"; // Geometric types
+        const _I: &str = "I"; // Network address types
+        const N: &str = "N"; // Numeric types
+        const P: &str = "P"; // Pseudo-types
+        const _R: &str = "R"; // Range types
+        const S: &str = "S"; // String types
+        const T: &str = "T"; // Timespan types
+        const U: &str = "U"; // User-defined types
+        const _V: &str = "V"; // Bit-string types
+        const _X: &str = "X"; // Unknown type(no category)
+        const _Z: &str = "Z"; // Internal-use types
 
         let oid: u32 = oid_of_type(id);
         match id {

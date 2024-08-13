@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod pg_array_to_string;
 mod pg_get_userbyid;
 mod table_is_visible;
 mod version;
@@ -22,6 +23,7 @@ use pg_get_userbyid::PGGetUserByIdFunction;
 use table_is_visible::PGTableIsVisibleFunction;
 use version::PGVersionFunction;
 
+use self::pg_array_to_string::PGArrayToStringFunction;
 use crate::function_registry::FunctionRegistry;
 
 #[macro_export]
@@ -38,5 +40,6 @@ impl PGCatalogFunction {
         registry.register(Arc::new(PGTableIsVisibleFunction));
         registry.register(Arc::new(PGGetUserByIdFunction));
         registry.register(Arc::new(PGVersionFunction));
+        registry.register(Arc::new(PGArrayToStringFunction));
     }
 }
