@@ -24,17 +24,18 @@ Affected Rows: 0
 
 select table_catalog, table_schema, table_name from information_schema.tables where table_schema != 'information_schema';
 
-+---------------+--------------+--------------+
-| table_catalog | table_schema | table_name   |
-+---------------+--------------+--------------+
-| greptime      | abc          | t            |
-| greptime      | abcde        | t            |
-| greptime      | pg_catalog   | pg_class     |
-| greptime      | pg_catalog   | pg_type      |
-| greptime      | pg_catalog   | pg_namespace |
-| greptime      | pg_catalog   | pg_database  |
-| greptime      | public       | numbers      |
-+---------------+--------------+--------------+
++---------------+--------------+----------------+
+| table_catalog | table_schema | table_name     |
++---------------+--------------+----------------+
+| greptime      | abc          | t              |
+| greptime      | abcde        | t              |
+| greptime      | pg_catalog   | pg_class       |
+| greptime      | pg_catalog   | pg_type        |
+| greptime      | pg_catalog   | pg_namespace   |
+| greptime      | pg_catalog   | pg_database    |
+| greptime      | pg_catalog   | pg_description |
+| greptime      | public       | numbers        |
++---------------+--------------+----------------+
 
 use public;
 

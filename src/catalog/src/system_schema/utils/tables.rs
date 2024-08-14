@@ -43,6 +43,14 @@ pub fn i16_column(name: &str) -> ColumnSchema {
     )
 }
 
+pub fn i32_column(name: &str) -> ColumnSchema {
+    ColumnSchema::new(
+        str::to_lowercase(name),
+        ConcreteDataType::int32_datatype(),
+        false,
+    )
+}
+
 pub fn list_column(name: &str, item_type: ConcreteDataType) -> ColumnSchema {
     ColumnSchema::new(
         str::to_lowercase(name),

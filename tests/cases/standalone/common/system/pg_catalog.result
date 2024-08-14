@@ -5,44 +5,44 @@ Error: 1004(InvalidArguments), Schema pg_catalog already exists
 
 select * from pg_catalog.pg_type order by oid;
 
-+-----+----------------------+--------+-------------+
-| oid | typname              | typlen | typcategory |
-+-----+----------------------+--------+-------------+
-| 1   | String               | -1     | S           |
-| 2   | Binary               | -1     | U           |
-| 3   | Int8                 | 1      | N           |
-| 4   | Int16                | 2      | N           |
-| 5   | Int32                | 4      | N           |
-| 6   | Int64                | 8      | N           |
-| 7   | UInt8                | 1      | N           |
-| 8   | UInt16               | 2      | N           |
-| 9   | UInt32               | 4      | N           |
-| 10  | UInt64               | 8      | N           |
-| 11  | Float32              | 4      | N           |
-| 12  | Float64              | 8      | N           |
-| 13  | Decimal              | 16     | N           |
-| 14  | Date                 | 4      | D           |
-| 15  | DateTime             | 8      | D           |
-| 16  | TimestampMillisecond | 8      | D           |
-| 17  | TimestampMicrosecond | 8      | D           |
-| 17  | TimeNanosecond       | 8      | T           |
-| 18  | TimestampNanosecond  | 8      | D           |
-| 18  | DurationSecond       | 8      | T           |
-| 19  | TimestampSecond      | 8      | D           |
-| 19  | DurationMillisecond  | 8      | T           |
-| 20  | TimeSecond           | 8      | T           |
-| 20  | DurationMicrosecond  | 8      | T           |
-| 21  | TimeMillisecond      | 8      | T           |
-| 21  | DurationNanosecond   | 8      | T           |
-| 22  | TimeMicrosecond      | 8      | T           |
-| 22  | IntervalYearMonth    | 16     | T           |
-| 23  | IntervalDayTime      | 16     | T           |
-| 24  | IntervalMonthDayNano | 16     | T           |
-| 25  | List                 | -1     | U           |
-| 26  | Boolean              | -1     | B           |
-| 27  | Null                 | 0      | P           |
-| 28  | Dictionary           | -1     | U           |
-+-----+----------------------+--------+-------------+
++-----+----------------------+--------+-------------+----------+
+| oid | typname              | typlen | typcategory | typrelid |
++-----+----------------------+--------+-------------+----------+
+| 1   | String               | -1     | S           | 0        |
+| 2   | Binary               | -1     | U           | 0        |
+| 3   | Int8                 | 1      | N           | 0        |
+| 4   | Int16                | 2      | N           | 0        |
+| 5   | Int32                | 4      | N           | 0        |
+| 6   | Int64                | 8      | N           | 0        |
+| 7   | UInt8                | 1      | N           | 0        |
+| 8   | UInt16               | 2      | N           | 0        |
+| 9   | UInt32               | 4      | N           | 0        |
+| 10  | UInt64               | 8      | N           | 0        |
+| 11  | Float32              | 4      | N           | 0        |
+| 12  | Float64              | 8      | N           | 0        |
+| 13  | Decimal              | 16     | N           | 0        |
+| 14  | Date                 | 4      | D           | 0        |
+| 15  | DateTime             | 8      | D           | 0        |
+| 16  | TimestampMillisecond | 8      | D           | 0        |
+| 17  | TimestampMicrosecond | 8      | D           | 0        |
+| 17  | TimeNanosecond       | 8      | T           | 0        |
+| 18  | TimestampNanosecond  | 8      | D           | 0        |
+| 18  | DurationSecond       | 8      | T           | 0        |
+| 19  | TimestampSecond      | 8      | D           | 0        |
+| 19  | DurationMillisecond  | 8      | T           | 0        |
+| 20  | TimeSecond           | 8      | T           | 0        |
+| 20  | DurationMicrosecond  | 8      | T           | 0        |
+| 21  | TimeMillisecond      | 8      | T           | 0        |
+| 21  | DurationNanosecond   | 8      | T           | 0        |
+| 22  | TimeMicrosecond      | 8      | T           | 0        |
+| 22  | IntervalYearMonth    | 16     | T           | 0        |
+| 23  | IntervalDayTime      | 16     | T           | 0        |
+| 24  | IntervalMonthDayNano | 16     | T           | 0        |
+| 25  | List                 | -1     | U           | 0        |
+| 26  | Boolean              | -1     | B           | 0        |
+| 27  | Null                 | 0      | P           | 0        |
+| 28  | Dictionary           | -1     | U           | 0        |
++-----+----------------------+--------+-------------+----------+
 
 -- \d
 SELECT n.nspname as "Schema",

@@ -17,14 +17,14 @@ use std::sync::Arc;
 use datatypes::scalars::ScalarVector;
 use datatypes::schema::{ColumnSchema, Schema, SchemaRef};
 use datatypes::type_id::LogicalTypeId;
-use datatypes::vectors::{Int16Vector, StringVector, UInt32Vector, VectorRef};
+use datatypes::vectors::{Int16Vector, Int32Vector, StringVector, UInt32Vector, VectorRef};
 
 use super::oid_column;
-use super::table_names::PG_TYPE;
+use super::table_names::*;
 use crate::memory_table_cols;
-use crate::system_schema::utils::tables::{i16_column, string_column};
+use crate::system_schema::utils::tables::{i16_column, i32_column, string_column, u32_column};
 
-mod pg_type {
+pub(super) mod pg_type {
     use datatypes::type_id::LogicalTypeId;
 
     pub type PGTypeRow = (
@@ -32,6 +32,7 @@ mod pg_type {
         &'static str, /*typname*/
         i16,          /*typlen*/
         &'static str, /*typcategory*/
+        u32,          /* typrelid */
     );
 
     pub const fn oid_of_type(id: LogicalTypeId) -> u32 {
@@ -75,6 +76,7 @@ mod pg_type {
 
     pub const fn row(id: LogicalTypeId) -> PGTypeRow {
         const LEN_UNBOUND: i16 = -1;
+        const TYPRELID: u32 = 0; // zero for non composite type
 
         // refer to https://www.postgresql.org/docs/current/catalog-pg-type.html
         const _A: &str = "A"; // Array types
@@ -96,48 +98,48 @@ mod pg_type {
 
         let oid: u32 = oid_of_type(id);
         match id {
-            LogicalTypeId::String => (oid, "String", LEN_UNBOUND, S),
-            LogicalTypeId::Binary => (oid, "Binary", LEN_UNBOUND, U), // align to bytea
-            LogicalTypeId::Int8 => (oid, "Int8", 1, N),
-            LogicalTypeId::Int16 => (oid, "Int16", 2, N),
-            LogicalTypeId::Int32 => (oid, "Int32", 4, N),
-            LogicalTypeId::Int64 => (oid, "Int64", 8, N),
-            LogicalTypeId::UInt8 => (oid, "UInt8", 1, N),
-            LogicalTypeId::UInt16 => (oid, "UInt16", 2, N),
-            LogicalTypeId::UInt32 => (oid, "UInt32", 4, N),
-            LogicalTypeId::UInt64 => (oid, "UInt64", 8, N),
-            LogicalTypeId::Float32 => (oid, "Float32", 4, N),
-            LogicalTypeId::Float64 => (oid, "Float64", 8, N),
-            LogicalTypeId::Decimal128 => (oid, "Decimal", 16, N),
-            LogicalTypeId::Date => (oid, "Date", 4, D),
-            LogicalTypeId::DateTime => (oid, "DateTime", 8, D),
-            LogicalTypeId::TimestampMillisecond => (oid, "TimestampMillisecond", 8, D),
-            LogicalTypeId::TimestampMicrosecond => (oid, "TimestampMicrosecond", 8, D),
-            LogicalTypeId::TimestampNanosecond => (oid, "TimestampNanosecond", 8, D),
-            LogicalTypeId::TimestampSecond => (oid, "TimestampSecond", 8, D),
-            LogicalTypeId::TimeSecond => (oid, "TimeSecond", 8, T),
-            LogicalTypeId::TimeMillisecond => (oid, "TimeMillisecond", 8, T),
-            LogicalTypeId::TimeMicrosecond => (oid, "TimeMicrosecond", 8, T),
-            LogicalTypeId::TimeNanosecond => (oid, "TimeNanosecond", 8, T),
-            LogicalTypeId::DurationSecond => (oid, "DurationSecond", 8, T),
-            LogicalTypeId::DurationMillisecond => (oid, "DurationMillisecond", 8, T),
-            LogicalTypeId::DurationMicrosecond => (oid, "DurationMicrosecond", 8, T),
-            LogicalTypeId::DurationNanosecond => (oid, "DurationNanosecond", 8, T),
-            LogicalTypeId::IntervalYearMonth => (oid, "IntervalYearMonth", 16, T),
-            LogicalTypeId::IntervalDayTime => (oid, "IntervalDayTime", 16, T),
-            LogicalTypeId::IntervalMonthDayNano => (oid, "IntervalMonthDayNano", 16, T),
-            LogicalTypeId::Boolean => (oid, "Boolean", LEN_UNBOUND, B),
-            LogicalTypeId::Null => (oid, "Null", 0, P),
-            LogicalTypeId::List => (oid, "List", LEN_UNBOUND, U),
+            LogicalTypeId::String => (oid, "String", LEN_UNBOUND, S, TYPRELID),
+            LogicalTypeId::Binary => (oid, "Binary", LEN_UNBOUND, U, TYPRELID), // align to bytea
+            LogicalTypeId::Int8 => (oid, "Int8", 1, N, TYPRELID),
+            LogicalTypeId::Int16 => (oid, "Int16", 2, N, TYPRELID),
+            LogicalTypeId::Int32 => (oid, "Int32", 4, N, TYPRELID),
+            LogicalTypeId::Int64 => (oid, "Int64", 8, N, TYPRELID),
+            LogicalTypeId::UInt8 => (oid, "UInt8", 1, N, TYPRELID),
+            LogicalTypeId::UInt16 => (oid, "UInt16", 2, N, TYPRELID),
+            LogicalTypeId::UInt32 => (oid, "UInt32", 4, N, TYPRELID),
+            LogicalTypeId::UInt64 => (oid, "UInt64", 8, N, TYPRELID),
+            LogicalTypeId::Float32 => (oid, "Float32", 4, N, TYPRELID),
+            LogicalTypeId::Float64 => (oid, "Float64", 8, N, TYPRELID),
+            LogicalTypeId::Decimal128 => (oid, "Decimal", 16, N, TYPRELID),
+            LogicalTypeId::Date => (oid, "Date", 4, D, TYPRELID),
+            LogicalTypeId::DateTime => (oid, "DateTime", 8, D, TYPRELID),
+            LogicalTypeId::TimestampMillisecond => (oid, "TimestampMillisecond", 8, D, TYPRELID),
+            LogicalTypeId::TimestampMicrosecond => (oid, "TimestampMicrosecond", 8, D, TYPRELID),
+            LogicalTypeId::TimestampNanosecond => (oid, "TimestampNanosecond", 8, D, TYPRELID),
+            LogicalTypeId::TimestampSecond => (oid, "TimestampSecond", 8, D, TYPRELID),
+            LogicalTypeId::TimeSecond => (oid, "TimeSecond", 8, T, TYPRELID),
+            LogicalTypeId::TimeMillisecond => (oid, "TimeMillisecond", 8, T, TYPRELID),
+            LogicalTypeId::TimeMicrosecond => (oid, "TimeMicrosecond", 8, T, TYPRELID),
+            LogicalTypeId::TimeNanosecond => (oid, "TimeNanosecond", 8, T, TYPRELID),
+            LogicalTypeId::DurationSecond => (oid, "DurationSecond", 8, T, TYPRELID),
+            LogicalTypeId::DurationMillisecond => (oid, "DurationMillisecond", 8, T, TYPRELID),
+            LogicalTypeId::DurationMicrosecond => (oid, "DurationMicrosecond", 8, T, TYPRELID),
+            LogicalTypeId::DurationNanosecond => (oid, "DurationNanosecond", 8, T, TYPRELID),
+            LogicalTypeId::IntervalYearMonth => (oid, "IntervalYearMonth", 16, T, TYPRELID),
+            LogicalTypeId::IntervalDayTime => (oid, "IntervalDayTime", 16, T, TYPRELID),
+            LogicalTypeId::IntervalMonthDayNano => (oid, "IntervalMonthDayNano", 16, T, TYPRELID),
+            LogicalTypeId::Boolean => (oid, "Boolean", LEN_UNBOUND, B, TYPRELID),
+            LogicalTypeId::Null => (oid, "Null", 0, P, TYPRELID),
+            LogicalTypeId::List => (oid, "List", LEN_UNBOUND, U, TYPRELID),
             /* Specially Dictionary is a generic type */
-            LogicalTypeId::Dictionary => (oid, "Dictionary", LEN_UNBOUND, U),
+            LogicalTypeId::Dictionary => (oid, "Dictionary", LEN_UNBOUND, U, TYPRELID),
         }
     }
 }
 
 fn pg_type_schema_columns() -> (Vec<ColumnSchema>, Vec<VectorRef>) {
     memory_table_cols!(
-        [oid, typname, typlen, typcategory],
+        [oid, typname, typlen, typcategory, typrelid],
         [
             pg_type::row(LogicalTypeId::String),
             pg_type::row(LogicalTypeId::Binary),
@@ -182,12 +184,14 @@ fn pg_type_schema_columns() -> (Vec<ColumnSchema>, Vec<VectorRef>) {
             string_column("typname"),
             i16_column("typlen"),
             string_column("typcategory"),
+            u32_column("typrelid"),
         ],
         vec![
             Arc::new(UInt32Vector::from_vec(oid)), // oid
             Arc::new(StringVector::from(typname)),
             Arc::new(Int16Vector::from_vec(typlen)), // typlen in bytes
             Arc::new(StringVector::from_vec(typcategory)),
+            Arc::new(UInt32Vector::from_vec(typrelid)),
         ],
     )
 }
@@ -195,6 +199,20 @@ fn pg_type_schema_columns() -> (Vec<ColumnSchema>, Vec<VectorRef>) {
 pub(super) fn get_schema_columns(table_name: &str) -> (SchemaRef, Vec<VectorRef>) {
     let (column_schemas, columns): (_, Vec<VectorRef>) = match table_name {
         PG_TYPE => pg_type_schema_columns(),
+        PG_DESCRIPTION => (
+            vec![
+                u32_column("objoid"),
+                u32_column("classoid"),
+                i32_column("objsubid"),
+                string_column("description"),
+            ],
+            vec![
+                Arc::new(UInt32Vector::from_vec(vec![])),
+                Arc::new(UInt32Vector::from_vec(vec![])),
+                Arc::new(Int32Vector::from_vec(vec![])),
+                Arc::new(StringVector::from_vec::<String>(vec![])),
+            ],
+        ),
         _ => unreachable!("Unknown table in pg_catalog: {}", table_name),
     };
     (Arc::new(Schema::new(column_schemas)), columns)

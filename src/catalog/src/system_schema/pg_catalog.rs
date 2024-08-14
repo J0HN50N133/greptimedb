@@ -23,7 +23,6 @@ use std::sync::{Arc, Weak};
 
 use common_catalog::consts::{self, PG_CATALOG_NAME};
 use datatypes::schema::ColumnSchema;
-use lazy_static::lazy_static;
 use paste::paste;
 use pg_catalog_memory_table::get_schema_columns;
 use pg_class::PGClass;
@@ -38,9 +37,7 @@ use super::utils::tables::u32_column;
 use super::{SystemSchemaProvider, SystemSchemaProviderInner, SystemTableRef};
 use crate::CatalogManager;
 
-lazy_static! {
-    static ref MEMORY_TABLES: &'static [&'static str] = &[table_names::PG_TYPE];
-}
+const MEMORY_TABLES: &[&str] = &[table_names::PG_TYPE, table_names::PG_DESCRIPTION];
 
 /// The column name for the OID column.
 /// The OID column is a unique identifier of type u32 for each object in the database.
@@ -130,6 +127,7 @@ impl SystemSchemaProviderInner for PGCatalogProvider {
     fn system_table(&self, name: &str) -> Option<SystemTableRef> {
         match name {
             table_names::PG_TYPE => setup_memory_table!(PG_TYPE),
+            table_names::PG_DESCRIPTION => setup_memory_table!(PG_DESCRIPTION),
             table_names::PG_DATABASE => Some(Arc::new(PGDatabase::new(
                 self.catalog_name.clone(),
                 self.catalog_manager.clone(),
